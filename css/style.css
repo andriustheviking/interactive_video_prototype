@@ -14,19 +14,12 @@ body{
 	width: 100%;
 }
 
-#i-video-container {
-
-}
-
-#preview-container{
-
-}
+.dropzone-text{}
 
 #dragdrop-container {
 	width: 200px;
 	height: 200px;
 	position: relative;
-
 }
 
 #dragzone {
@@ -35,7 +28,12 @@ body{
 	margin: 25px;
 	position: absolute;
 	border-style: dashed;
+}
 
+#image-input{
 
 }
 
+#i-video-container {}
+
+#preview-container{}

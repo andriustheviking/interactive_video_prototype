@@ -34,7 +34,12 @@ $(document).ready(function(){
 	  handleFiles(files[0]);
 	}
 
-	//create image preview and insert local Url into file input
+	//if user manually uploads input
+	imageInput.change(function(){
+		handleFiles(this.files[0]);
+	});
+
+	//create image preview
 	function handleFiles(file){
 		console.log(file);
 		var imageType = /^image\//;
@@ -43,27 +48,24 @@ $(document).ready(function(){
 			alert('Uploade image');
 			return false;
 		}
-		else {
 
-			var img = document.createElement('img');
-			img.classList.add('image-preview');
-			img.file = file;
-			
-			preview.append(img);
+		var img = document.createElement('img');
+		img.classList.add('image-preview');
+		img.file = file;
+		
+		preview.append(img);
 
-			var reader = new FileReader();
+		var reader = new FileReader();
+		//tells the reader what to do when onload is fired
+		reader.onload = (function(aImg) { 
+			return function (e) { 
+				aImg.src = e.target.result; 
+			};
+		})(img);
 
-			//tells the reader what to do when onload is fired
-			reader.onload = (function(aImg) { 
-				return function (e) { 
-					aImg.src = e.target.result; 
-				};
-			})(img);
-
-			//tells reader to read file (firing onload)
-			reader.readAsDataURL(file);
-							
-		return true;
-		}	
+		//tells reader to read file (firing onload)
+		reader.readAsDataURL(file);
+						
+		return true;	
 	}
 });
