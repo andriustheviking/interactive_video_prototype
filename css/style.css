@@ -1,0 +1,41 @@
+/*Prototype 2 Stylsheet*/
+
+body{
+	background: #ececec;
+}
+
+.main-container{
+	border-radius: 5px;	
+	background: white;
+}
+
+
+.image-preview{
+	width: 100%;
+}
+
+#i-video-container {
+
+}
+
+#preview-container{
+
+}
+
+#dragdrop-container {
+	width: 200px;
+	height: 200px;
+	position: relative;
+
+}
+
+#dragzone {
+	width: 150px;
+	height: 150px;
+	margin: 25px;
+	position: absolute;
+	border-style: dashed;
+
+
+}
+
