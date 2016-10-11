@@ -14,7 +14,20 @@ body{
 	width: 100%;
 }
 
-.dropzone-text{}
+.dropzone-text{
+}
+
+.center {
+	position: absolute;
+	margin-left: auto;
+	margin-right: auto;
+	left: 0;
+	right: 0;
+}
+
+.noIbar {
+cursor:default;
+}
 
 #dragdrop-container {
 	width: 200px;
@@ -34,6 +47,47 @@ body{
 
 }
 
-#i-video-container {}
+#i-video-container {
+}
 
-#preview-container{}
+#preview-container{
+
+}
+
+#overlay {
+  position: absolute; 
+  top: 150px; 
+  color: #FFF; 
+  text-align: center;
+  width: 640px;
+  padding: 10px 0;
+  z-index: 1;
+}
+
+#overlaytext {
+    overflow-wrap: break-word;
+    font-family: "Open sans", sans-serif;
+    font-weight: 100;
+  	font-size: 30px;
+}
+
+#video-container {
+	position: relative;
+	height: 360px;
+	width: auto;
+}
+
+#video {
+    position: absolute;
+    z-index:0;
+}
+
+#interface-container{
+	position: relative;
+}
+
+#interface {
+	width: 230px;
+	margin: auto;
+}
+

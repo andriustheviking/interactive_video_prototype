@@ -19,11 +19,29 @@
 				</div>
 			</div>
 		</div>
+		<span id="img-name"></span>
 		<br>
 		<span class='dropzone-text'>or</span>
 		<br>
 		<input type="file" name="userImage" accept="image/*" id="image-input">
+		<br>
+		<button type="button" id="btn-create">Create Video</button>	
 	</div>
-	<div id="i-video-container"></div>
+	<div id="i-video-container" style="display: none">
+		<div id="video-container">
+			<video id="video" width="640" height="360" class="center">
+				<source src="../video/xendle.mp4" type="video/mp4">
+				<!--MUST ADD OGV AND WEBM files-->
+				Your browser does not support the video tag.
+			</video>
+			<div id="overlay" class="center noIbar"><span id="overlaytext"></span></div>			
+		</div>
+		<div id="interface" class="">
+			<button id="btn-play"></button>
+			<input type="text" id="textfield">
+			<button id="btn-clear">Clear</button>
+		</div>
+	</div>
+
 
 </body>
