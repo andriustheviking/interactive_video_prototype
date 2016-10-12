@@ -1,7 +1,7 @@
 //Prototype 2 JavaScript
 
 //GLOBALS
-var autoPlay = true;
+var autoPlay = false;
 
 $(document).ready(function(){
 	
@@ -13,20 +13,19 @@ $(document).ready(function(){
 		createBtn = $('#btn-create'),
 		imageName = $('#img-name'),
 		inputContainer = $('#initial-user-input'),
-		videoContainer = $('#i-video-container');
+		ivideoContainer = $('#i-video-container');
 
 	//interactive video elements
 	var video = $('#video')[0],
-		overlay = $('#overlay'),
+		overlayContainer = $('#overlay-container'),
 		playButton = $('#btn-play'),
 		textField = $('#textfield'),
-		clearButton = $('#btn-clear'),
-		overlayText = $('#overlaytext');
+		clearButton = $('#btn-clear');
 
 
 	//vars to store user submitted info
 	var userImage;
-	var userName;
+	var userName = "";
 
 	//if auto play, set playPause btn to Pause, else playe
 	autoPlay ? playButton.html("Pause") : playButton.html("Play")
@@ -62,15 +61,24 @@ $(document).ready(function(){
 		userName = nameInput.val();
 		
 		inputContainer.hide();
-		videoContainer.show();		
+		ivideoContainer.show();		
 		
-		playVideo();
+		createVideo();
 	});	
 
-	function playVideo(){
+	function createVideo(){
+
+		//creates a span for text overlay, inserts sanitized userName and appends to overlayContainer
+		$('<span class="overlay-text"></span>').text(userName).appendTo(overlayContainer);
+
 		if(autoPlay)
 			video.play();
-		
+
+		//fires functions on timeupdate
+		video.addEventListener("timeupdate", function(){
+
+		});
+
 	};
 
 
@@ -107,8 +115,6 @@ $(document).ready(function(){
 		}
 
 		var img = document.createElement('img');
-
-		//add css class to image
 		img.classList.add('image-preview');
 
 		//insert img element to preview div
