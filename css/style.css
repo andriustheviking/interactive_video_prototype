@@ -73,6 +73,11 @@ cursor:default;
   	font-size: 30px;
 }
 
+#canvas-3d {
+	position:absolute;
+	overflow: hidden;
+}
+
 #viewport {
     position: relative;
     height: 360px;

@@ -16,19 +16,24 @@ $(document).ready(function(){
 		ivideoContainer = $('#i-video-container');
 
 	//interactive video elements
-	var video = $('#video')[0],
+	var viewport = $('#viewport')
+		video = $('#video')[0],
 		overlayContainer = $('#overlay-container'),
 		playButton = $('#btn-play'),
 		textField = $('#textfield'),
 		clearButton = $('#btn-clear');
-
+		
+	var	canvas3d = document.getElementById('canvas-3d');
+	var ctx = canvas3d.getContext('2d');
+		canvas3d.height = viewport.height();
+		canvas3d.width = viewport.width();
+		console.log(canvas3d.height,canvas3d.width);
 
 	//vars to store user submitted info
 	var userImage;
 	var userName = "";
 
-	//if auto play, set playPause btn to Pause, else playe
-	autoPlay ? playButton.html("Pause") : playButton.html("Play")
+
 
 	//define dropzone and handlers
 	var	dragDrop = $('#dragzone')[0];
@@ -40,6 +45,9 @@ $(document).ready(function(){
 	imageInput.change(function(){
 		handleFiles(this.files[0]);
 	});
+
+	//if auto play, set playPause btn to Pause, else play
+	autoPlay ? playButton.html("Pause") : playButton.html("Play")
 
 	//when button is pressed, fire playPause
 	playButton.click( function(){
@@ -66,10 +74,11 @@ $(document).ready(function(){
 		createVideo();
 	});	
 
+
 	function createVideo(){
 
 		//creates a span for text overlay, inserts sanitized userName and appends to overlayContainer
-		$('<span class="overlay-text"></span>').text(userName).appendTo(overlayContainer);
+		$('<span></span>').addClass("overlay-text").text(userName).appendTo(overlayContainer);
 
 		if(autoPlay)
 			video.play();
@@ -78,7 +87,6 @@ $(document).ready(function(){
 		video.addEventListener("timeupdate", function(){
 
 		});
-
 	};
 
 
