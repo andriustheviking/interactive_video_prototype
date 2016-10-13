@@ -15,10 +15,22 @@ body{
 	right: 0;
 }
 
+.canvas {
+	position:absolute;
+	overflow: hidden;
+	z-index: 3;
+}
+
 .image-preview{
 	width: 100%;
 }
 
+.overlay-text {
+    overflow-wrap: break-word;
+    font-family: "Open sans", sans-serif;
+    font-weight: 100;
+  	font-size: 30px;
+}
 
 .main-container{
 	border-radius: 5px;	
@@ -28,6 +40,10 @@ body{
 
 .noIbar {
 cursor:default;
+}
+
+#webgl {
+	
 }
 
 #dragdrop-container {
@@ -66,16 +82,11 @@ cursor:default;
     overflow: hidden;
 }
 
-.overlay-text {
-    overflow-wrap: break-word;
-    font-family: "Open sans", sans-serif;
-    font-weight: 100;
-  	font-size: 30px;
-}
-
-#canvas-3d {
+#webgl-container {
 	position:absolute;
 	overflow: hidden;
+	width: 100%;
+	height: 100%;
 	z-index: 2;
 }
 

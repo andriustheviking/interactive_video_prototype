@@ -1,8 +1,7 @@
 //Prototype 2 JavaScript
 
 //GLOBALS
-var autoPlay = false, //video will autoplay when true
-	gl;	//webgl global
+var autoPlay = false; //video will autoplay when true
 
 $(document).ready(function(){
 	
@@ -22,32 +21,48 @@ $(document).ready(function(){
 		overlayContainer = $('#overlay-container'),
 		playButton = $('#btn-play'),
 		textField = $('#textfield'),
-		clearButton = $('#btn-clear');
+		clearButton = $('#btn-clear'),
+		glContainer = $('#webgl-container');
 	
-	//setup webgl canvas
-	var	canvas3d = document.getElementById('canvas-3d');
-		canvas3d.height = viewport.height();
-		canvas3d.width = viewport.width();  //change webgl viewport with: gl.viewport(0, 0, canvas.width, canvas.height);
-
-		gl = initWebGL(canvas3d);
-
-		//NEED ERROR HANDLING
-		if(!gl)
-			console.log("WebGL not supported");
-
-		gl.clearColor(0.0, 0.0, 0.0, 0.0); //set clear to  black
-		gl.enable(gl.DEPTH_TEST); //enable depth testing
-		gl.depthFunc(gl.LEQUAL); //near things obscure far things
-		gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT); //Clear the color as well as the depth buffer
-
-		initShaders();//initialize shaders
-
-
 	//vars to store user submitted info
 	var userImage;
 	var userName = "";
 
+	//storing height and width of viewport
+	var	viewHeight = viewport.height(),
+		viewWidth = viewport.width();
 
+	//setting up three renderer
+	var scene = new THREE.Scene();
+	var camera = new THREE.PerspectiveCamera(75, viewWidth/viewHeight, 0.1, 1000);
+	var renderer = new THREE.WebGLRenderer( { alpha: true } );
+
+	renderer.setSize( viewWidth, viewHeight ); //setting the renderer to the viewport size
+
+	renderer.domElement.classList.add('canvas');
+	renderer.domElement.id = 'webgl';
+	glContainer.append(renderer.domElement); //insert into glContainer
+
+	//create a cube and add to scene
+	var geometry = new THREE.BoxGeometry( 1, 1, 1 );
+	var material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
+	var cube = new THREE.Mesh( geometry, material );
+	scene.add( cube );
+
+	camera.position.z = 5; //move back camera to see cube
+	
+	//render  animation loop
+	function render() {
+		requestAnimationFrame( render );
+		
+		cube.rotation.x += 0.01;
+		cube.rotation.y += 0.01;
+
+		renderer.render( scene, camera );
+	}
+
+	//call render loop
+	render();
 
 	//define dropzone and handlers
 	var	dragDrop = $('#dragzone')[0];
@@ -176,61 +191,4 @@ function initWebGL(canvas){
   	return gl;
 }
 
-function initShaders(){
-	var fragmentShader = getShader(gl, "shader-fs"),
-		vertexShader = getShader(gl, "shader-vs");
 
-	//create shader program
-	shaderprogram = gl.createProgram();
-	gl.attachShader(shaderprogram, vertexShader);
-	gl.attachShader(shaderprogram, fragmentShader);
-	gl.linkProgram(shaderprogram);
-
-	// If creating the shader program failed, alert
-	if (!gl.getProgramParameter(shaderProgram, gl.LINK_STATUS)) {
-		alert("Unable to initialize the shader program: " + gl.getProgramInfoLog(shader));
-	}
-
-	gl.useProgram(shaderprogram);
-
-	vertexPositionAttribute = gl.getAttribLocation(shaderProgram, "aVertexPosition");
-	gl.enableVertexAttribArray(vertexPositionAttribute);
-}
-
-function getShader(gl, id, type) {
-	
-	var shaderScript, theSource, currentChild, shader;
-
-	shaderScript = document.getElementById(id);
-
-	if (!shaderScript) {
-	return null;
-	}
-  
-	theSource = shaderScript.text;
-
-	if (!type) {
-		if (shaderScript.type == "x-shader/x-fragment") {
-			type = gl.FRAGMENT_SHADER;
-		} else if (shaderScript.type == "x-shader/x-vertex") {
-			type = gl.VERTEX_SHADER;
-		} else { // Unknown shader type
-			return null;
-		}
-	}
-	shader = gl.createShader(type);
-
-	gl.shaderSource(shader, theSource);
-    
-	// Compile the shader program
-	gl.compileShader(shader);  
-	    
-	// See if it compiled successfully
-	if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {  
-	    alert("An error occurred compiling the shaders: " + gl.getShaderInfoLog(shader));  
-	    gl.deleteShader(shader);
-	    return null;  
-	}
-	    
-	return shader;
-}
