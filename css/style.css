@@ -76,6 +76,7 @@ cursor:default;
 #canvas-3d {
 	position:absolute;
 	overflow: hidden;
+	z-index: 2;
 }
 
 #viewport {

@@ -1,7 +1,8 @@
 //Prototype 2 JavaScript
 
 //GLOBALS
-var autoPlay = false;
+var autoPlay = false, //video will autoplay when true
+	gl;	//webgl global
 
 $(document).ready(function(){
 	
@@ -22,12 +23,25 @@ $(document).ready(function(){
 		playButton = $('#btn-play'),
 		textField = $('#textfield'),
 		clearButton = $('#btn-clear');
-		
+	
+	//setup webgl canvas
 	var	canvas3d = document.getElementById('canvas-3d');
-	var ctx = canvas3d.getContext('2d');
 		canvas3d.height = viewport.height();
-		canvas3d.width = viewport.width();
-		console.log(canvas3d.height,canvas3d.width);
+		canvas3d.width = viewport.width();  //change webgl viewport with: gl.viewport(0, 0, canvas.width, canvas.height);
+
+		gl = initWebGL(canvas3d);
+
+		//NEED ERROR HANDLING
+		if(!gl)
+			console.log("WebGL not supported");
+
+		gl.clearColor(0.0, 0.0, 0.0, 0.0); //set clear to  black
+		gl.enable(gl.DEPTH_TEST); //enable depth testing
+		gl.depthFunc(gl.LEQUAL); //near things obscure far things
+		gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT); //Clear the color as well as the depth buffer
+
+		initShaders();//initialize shaders
+
 
 	//vars to store user submitted info
 	var userImage;
@@ -88,7 +102,6 @@ $(document).ready(function(){
 
 		});
 	};
-
 
 	//handles when users drag object into dropzone
 	function dragenter(e) {
@@ -151,3 +164,73 @@ $(document).ready(function(){
 		return true;
 	}
 });
+
+function initWebGL(canvas){
+	gl = null;
+	// Try to grab the standard context. If it fails, fallback to experimental.
+	gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+	// If we don't have a GL context, give up now
+	if (!gl) {
+	   alert("Unable to initialize WebGL. Your browser may not support it.");
+	}
+  	return gl;
+}
+
+function initShaders(){
+	var fragmentShader = getShader(gl, "shader-fs"),
+		vertexShader = getShader(gl, "shader-vs");
+
+	//create shader program
+	shaderprogram = gl.createProgram();
+	gl.attachShader(shaderprogram, vertexShader);
+	gl.attachShader(shaderprogram, fragmentShader);
+	gl.linkProgram(shaderprogram);
+
+	// If creating the shader program failed, alert
+	if (!gl.getProgramParameter(shaderProgram, gl.LINK_STATUS)) {
+		alert("Unable to initialize the shader program: " + gl.getProgramInfoLog(shader));
+	}
+
+	gl.useProgram(shaderprogram);
+
+	vertexPositionAttribute = gl.getAttribLocation(shaderProgram, "aVertexPosition");
+	gl.enableVertexAttribArray(vertexPositionAttribute);
+}
+
+function getShader(gl, id, type) {
+	
+	var shaderScript, theSource, currentChild, shader;
+
+	shaderScript = document.getElementById(id);
+
+	if (!shaderScript) {
+	return null;
+	}
+  
+	theSource = shaderScript.text;
+
+	if (!type) {
+		if (shaderScript.type == "x-shader/x-fragment") {
+			type = gl.FRAGMENT_SHADER;
+		} else if (shaderScript.type == "x-shader/x-vertex") {
+			type = gl.VERTEX_SHADER;
+		} else { // Unknown shader type
+			return null;
+		}
+	}
+	shader = gl.createShader(type);
+
+	gl.shaderSource(shader, theSource);
+    
+	// Compile the shader program
+	gl.compileShader(shader);  
+	    
+	// See if it compiled successfully
+	if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {  
+	    alert("An error occurred compiling the shaders: " + gl.getShaderInfoLog(shader));  
+	    gl.deleteShader(shader);
+	    return null;  
+	}
+	    
+	return shader;
+}
