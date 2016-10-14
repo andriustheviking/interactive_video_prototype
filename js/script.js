@@ -83,25 +83,45 @@ $(document).ready(function(){
 		if(!playing)
 			return;
 		
-		requestAnimationFrame( render );	
+			setTimeout( function () { 
 
-		//calculate rendertime
-		renderLoops++;
-		rTimeElem.html(renderLoops/59);		
-		
+			requestAnimationFrame( render );	
+
+			//calculate rendertime
+			renderLoops++;
+			
+			getDeltaTime();
+
+			getVideoTime();
+			
+			animatePlane();
+
+			renderer.render( scene, camera );
+
+		}, 40); //setTimout to every 40ms means even 25 fps
+
+	}
+
+	function getVideoTime(){
+		//update video timecode
+		vt = video.currentTime;		
+	};
+
+	function getDeltaTime(){
 		//get exact time elapsed in seconds
 		now = new Date();
-		deltaTime = (now.getTime() - date.getTime()) / 1000;
-		dTimeElem.html(dateTime + deltaTime);		
+		deltaTime = (now.getTime() - date.getTime()) / 1000;		
+	};
 
-		//update video timecode
-		vt = video.currentTime,
-		vTimeElem.html(vt);
-		
-		animatePlane();
+	function animatePlane(){
 
-		renderer.render( scene, camera );
-	}
+		greenplane.position.x = 20 * Math.cos( vt * Math.PI / 5);
+
+		redplane.position.x = 20 * Math.cos( (dateTime + deltaTime) * Math.PI / 5);
+
+		blueplane.position.x = 20 * Math.cos( renderLoops * Math.PI / 125); // 25 fps * 5s = 125
+
+	};
 
 
 	//get time when video starts
@@ -121,17 +141,6 @@ $(document).ready(function(){
 		//update render time based on video (to avoid drift)
 		dateTime = video.currentTime;
 	}
-
-
-	function animatePlane(){
-
-		greenplane.position.x = 20 * Math.cos( vt * Math.PI / 5);
-
-		redplane.position.x = 20 * Math.cos( (dateTime + deltaTime) * Math.PI / 5);
-
-		blueplane.position.x = 20 * Math.cos( renderLoops * Math.PI / 295);
-
-	};
 
 
 	//define dropzone and handlers
