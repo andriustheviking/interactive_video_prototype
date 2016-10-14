@@ -37,10 +37,14 @@ body{
 	background: white;
 }
 
-
 .noIbar {
 cursor:default;
 }
+
+.timecode {
+	display: inline-block;
+}
+
 
 #webgl {
 	
@@ -107,7 +111,7 @@ cursor:default;
 }
 
 #interface {
-	width: 230px;
+
 	margin: auto;
 }
 

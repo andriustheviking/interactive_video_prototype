@@ -1,7 +1,8 @@
 //Prototype 2 JavaScript
 
 //GLOBALS
-var autoPlay = false; //video will autoplay when true
+var autoPlay = false, //video will autoplay when true
+	playing = false; //status of video player
 
 $(document).ready(function(){
 	
@@ -23,46 +24,115 @@ $(document).ready(function(){
 		textField = $('#textfield'),
 		clearButton = $('#btn-clear'),
 		glContainer = $('#webgl-container');
+
+	//storing height and width of viewport
+	var	viewHeight = viewport.height(),
+		viewWidth = viewport.width();
 	
 	//vars to store user submitted info
 	var userImage;
 	var userName = "";
 
-	//storing height and width of viewport
-	var	viewHeight = viewport.height(),
-		viewWidth = viewport.width();
+	//TIMING VARIABLES
+	var vt = video.currentTime,
+		date = new Date(), //tracks the start time of video play
+		now = new Date(), //tracks current time of video
+		deltaTime = 0,
+		dateTime = 0,
+		renderTime = 0,
+		renderLoops = 0,
+		vTimeElem = $('#v-time'),
+		dTimeElem = $('#d-time'),
+		rTimeElem = $('#r-time');
 
-	//setting up three renderer
+
+	//WEBGL GLOBALS
 	var scene = new THREE.Scene();
 	var camera = new THREE.PerspectiveCamera(75, viewWidth/viewHeight, 0.1, 1000);
 	var renderer = new THREE.WebGLRenderer( { alpha: true } );
 
-	renderer.setSize( viewWidth, viewHeight ); //setting the renderer to the viewport size
+	initGL();
 
-	renderer.domElement.classList.add('canvas');
-	renderer.domElement.id = 'webgl';
-	glContainer.append(renderer.domElement); //insert into glContainer
-
-	//create a cube and add to scene
-	var geometry = new THREE.BoxGeometry( 1, 1, 1 );
+	//create objects to add to canvas
+	var geometry = new THREE.PlaneGeometry( 5,5 );
 	var material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
-	var cube = new THREE.Mesh( geometry, material );
-	scene.add( cube );
+	var greenplane = new THREE.Mesh( geometry, material );
+		greenplane.position.y = 8;
 
-	camera.position.z = 5; //move back camera to see cube
-	
+	geometry = new THREE.PlaneGeometry( 5,5 );
+	material = new THREE.MeshBasicMaterial( { color: 0xff0000 } );
+	var redplane = new THREE.Mesh( geometry, material );
+		redplane.position.y = 0;
+
+	geometry = new THREE.PlaneGeometry( 5,5 );
+	material = new THREE.MeshBasicMaterial( { color: 0x0000ff } );
+	var blueplane = new THREE.Mesh( geometry, material );
+		blueplane.position.y = -8;
+		
+	scene.add( greenplane, redplane, blueplane);
+
+	camera.position.z = 20; //move back camera to see plane
+
+	//array of plane Keyframes in seconds
+	var keyframes = [0,5,15]; 
+
+
 	//render  animation loop
 	function render() {
-		requestAnimationFrame( render );
+
+		if(!playing)
+			return;
 		
-		cube.rotation.x += 0.01;
-		cube.rotation.y += 0.01;
+		requestAnimationFrame( render );	
+
+		//calculate rendertime
+		renderLoops++;
+		rTimeElem.html(renderLoops/59);		
+		
+		//get exact time elapsed in seconds
+		now = new Date();
+		deltaTime = (now.getTime() - date.getTime()) / 1000;
+		dTimeElem.html(dateTime + deltaTime);		
+
+		//update video timecode
+		vt = video.currentTime,
+		vTimeElem.html(vt);
+		
+		animatePlane();
 
 		renderer.render( scene, camera );
 	}
 
-	//call render loop
-	render();
+
+	//get time when video starts
+	video.onplay = function() {
+		//set playing to true
+		playing = true;		
+		//get start time
+		date = new Date();
+		//update render time based on video (to avoid drift)
+		dateTime = video.currentTime;
+
+		render();
+	};
+
+	video.onpause = function (){
+		playing = false;
+		//update render time based on video (to avoid drift)
+		dateTime = video.currentTime;
+	}
+
+
+	function animatePlane(){
+
+		greenplane.position.x = 20 * Math.cos( vt * Math.PI / 5);
+
+		redplane.position.x = 20 * Math.cos( (dateTime + deltaTime) * Math.PI / 5);
+
+		blueplane.position.x = 20 * Math.cos( renderLoops * Math.PI / 295);
+
+	};
+
 
 	//define dropzone and handlers
 	var	dragDrop = $('#dragzone')[0];
@@ -70,7 +140,7 @@ $(document).ready(function(){
 		dragDrop.addEventListener('dragover', dragover, false);
 		dragDrop.addEventListener('drop', drop, false);
 
-	//if user manually uploads input
+	//if user manually uploads image
 	imageInput.change(function(){
 		handleFiles(this.files[0]);
 	});
@@ -82,27 +152,34 @@ $(document).ready(function(){
 	playButton.click( function(){
 		playPause()
 	});
-	//function to be called when Play/Pause button is pressed
-	function playPause(){
-	    video.paused ? (
-	        video.play(),
-	        playButton.html("Pause")
-	    ) : (
-	        video.pause(),
-	        playButton.html("Play")
-	    );};
 
 	//when user hits 'Create Video', hide input, show video and play
 	createBtn.click( function(){
 		//get username
-		userName = nameInput.val();
-		
+		userName = nameInput.val();		
 		inputContainer.hide();
-		ivideoContainer.show();		
-		
+		ivideoContainer.show();				
 		createVideo();
 	});	
 
+	function initGL(){
+		renderer.setSize( viewWidth, viewHeight ); //setting the renderer to the viewport size
+
+		renderer.domElement.classList.add('canvas');
+		renderer.domElement.id = 'webgl';
+		glContainer.append(renderer.domElement); //insert into glContainer		
+	};
+	
+	//function to be called when Play/Pause button is pressed
+	function playPause(){
+	    if (video.paused) {
+	        video.play();
+	        playButton.html("Pause");
+	    } else {
+	        video.pause();
+	        playButton.html("Play");
+	    }
+	};
 
 	function createVideo(){
 
@@ -111,11 +188,6 @@ $(document).ready(function(){
 
 		if(autoPlay)
 			video.play();
-
-		//fires functions on timeupdate
-		video.addEventListener("timeupdate", function(){
-
-		});
 	};
 
 	//handles when users drag object into dropzone
