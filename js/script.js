@@ -83,22 +83,19 @@ $(document).ready(function(){
 		if(!playing)
 			return;
 		
-			setTimeout( function () { 
+		requestAnimationFrame( render );	
 
-			requestAnimationFrame( render );	
+		//calculate rendertime
+		renderLoops++;
+		
+		getDeltaTime();
 
-			//calculate rendertime
-			renderLoops++;
-			
-			getDeltaTime();
+		getVideoTime();
+		
+		animatePlane();
 
-			getVideoTime();
-			
-			animatePlane();
+		renderer.render( scene, camera );
 
-			renderer.render( scene, camera );
-
-		}, 40); //setTimout to every 40ms means even 25 fps
 
 	}
 
@@ -119,7 +116,7 @@ $(document).ready(function(){
 
 		redplane.position.x = 20 * Math.cos( (dateTime + deltaTime) * Math.PI / 5);
 
-		blueplane.position.x = 20 * Math.cos( renderLoops * Math.PI / 125); // 25 fps * 5s = 125
+		blueplane.position.x = 20 * Math.cos( renderLoops * Math.PI / 300);
 
 	};
 
