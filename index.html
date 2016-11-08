@@ -1,48 +1,82 @@
 <!DOCTYPE html>
 <head>
 	<meta charset="UTF-8">
-	<title>Working Prototype 2</title>
+	<title>Working Prototype 3</title>
+	<link rel="stylesheet" type="text/css" href="./css/bootstrap.css">
 	<link rel="stylesheet" type="text/css" href="./css/style.css">
 	<script type="text/javascript" src="./js/jquery-3.1.1.js"></script>
 	<script type="text/javascript" src="./js/popcorn.min.js"></script>
 	<script type="text/javascript" src="./js/three.min.js"></script>
+	<script type='text/javascript' src="./js/easing.js"></script>
 	<script type="text/javascript" src="./js/script.js"></script>
 
 </head>
 <body>
-	<div id="initial-user-input" class="main-container" style="display:none"> <!--displays reversed for testing-->
-		Input Your name:
-		<input type="text" name="userName" id="name-input">
-		<br>
-		<div id="dragdrop-container">
-			<div id="dragzone">
-				<div id='preview-container'>
+	<div class="container main">
+		<div id="initial-user-input">
+			<div class='row'>
+			  	<div class="form-group col-xs-4 col-xs-offset-4">
+				    <label for="exampleInputEmail1">Input Your Name:</label>
+					<input type="text" name="userName" id="name-input" class='form-control' placeholder='Name'>
+				</div>
+			</div>
+			<div class='row'>
+				<div id="dragdrop-container" class="form-group col-xs-6 col-xs-offset-3">
+					<div class='row'>
+						<div id="dragzone" class='col-xs-10'>
+							<div id='preview-container'>
+								<div id='image-placeholder'>
+									<label>Drag your logo here:</label>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class='row'>
+				<div class='col-xs-2 col-xs-offset-5'>
+					<label id="img-name"></label>
+				</div>
+			</div>
+			<div class='row'>
+				<div class='col-xs-2 col-xs-offset-5'>
+					<label class='dropzone-text'>or</label>
+				</div>
+			</div>
+			<div class='row'>
+				<div class="form-group col-xs-4 col-xs-offset-4">
+					<label class="btn btn-primary btn-file">
+						Upload a file:<input type="file" name="userImage" accept="image/*" id="image-input" class='btn btn-primary btn-file'>
+					</label>
+				</div>
+			</div>
+			<div class='row'>
+				<div class="form-group col-xs-4 col-xs-offset-4">
+					<button type="button" id="btn-create" class="btn btn-success">Create Video</button>
 				</div>
 			</div>
 		</div>
-		<span id="img-name"></span>
-		<br>
-		<span class='dropzone-text'>or</span>
-		<br>
-		<input type="file" name="userImage" accept="image/*" id="image-input">
-		<br>
-		<button type="button" id="btn-create">Create Video</button>	
-	</div>
-	<div id="i-video-container">
-		<div id="viewport">
-			<video id="video" width="100%" height="100%" class="center" >
-				<source src="../video/big_buck_bunny.mp4" type="video/mp4">
-				<source src="../video/big_buck_bunny.ogv" type="video/ogv">
-				<source src="../video/big_buck_bunny.webm" type="video/webm">
-				<!--MUST ADD OGV AND WEBM files-->
-				Your browser does not support the video tag.
-			</video>
-			<div id="webgl-container"></div>
-			<div id="overlay-container" class="center noIbar">			
-			</div>			
-		</div>
-		<div id="interface" class="">
-			<button id="btn-play"></button>
+		<div id="i-video-container" style="display:none">
+			<div class='row'>
+				<div id="viewport">
+					<video id="video" width="100%" height="100%" class="center" controls>
+						<source src="../video/big_buck_bunny.mp4" type="video/mp4">
+						<source src="../video/big_buck_bunny.ogv" type="video/ogv">
+						<source src="../video/big_buck_bunny.webm" type="video/webm">
+						<!--MUST ADD OGV AND WEBM files-->
+						Your browser does not support the video tag.
+					</video>
+					<div id="webgl-container" class="overlay"></div>
+					<div id="overlay-container" class="center overlay">			
+					</div>			
+				</div>
+			</div>
+			<div id="interface" class="row" style='display:none'>
+				<div class="col-xs-4 col-xs-offset-4">
+					<button id="btn-play" class='btn btn-primary'></button>
+					<span id='v-time'></span>
+				</div>
+			</div>
 		</div>
 	</div>
 

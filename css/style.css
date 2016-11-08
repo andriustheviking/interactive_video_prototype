@@ -1,5 +1,25 @@
 /*Prototype 2 Stylsheet*/
 
+.btn-file {
+    position: relative;
+    overflow: hidden;
+}
+.btn-file input[type=file] {
+    position: absolute;
+    top: 0;
+    right: 0;
+    min-width: 100%;
+    min-height: 100%;
+    font-size: 100px;
+    text-align: right;
+    filter: alpha(opacity=0);
+    opacity: 0;
+    outline: none;
+    background: white;
+    cursor: inherit;
+    display: block;
+}
+
 body{
 	background: #ececec;
 }
@@ -21,9 +41,6 @@ body{
 	z-index: 3;
 }
 
-.image-preview{
-	width: 100%;
-}
 
 .overlay-text {
     overflow-wrap: break-word;
@@ -32,13 +49,16 @@ body{
   	font-size: 30px;
 }
 
-.main-container{
+.main{
+	margin-top:20px;
 	border-radius: 5px;	
 	background: white;
+	padding: 20px;
 }
 
-.noIbar {
-cursor:default;
+.overlay {
+	cursor:default;
+	pointer-events:none;
 }
 
 .timecode {
@@ -46,26 +66,27 @@ cursor:default;
 }
 
 
-#webgl {
-	
-}
+
 
 #dragdrop-container {
-	width: 200px;
-	height: 200px;
+
+	height: 300px;
 	position: relative;
 }
 
 #dragzone {
-	width: 150px;
-	height: 150px;
+	padding: 0;
+	height: 250px;
 	margin: 25px;
 	position: absolute;
 	border-style: dashed;
 }
 
-#image-input{
+#image-preview{
+	height: 100%;
+}
 
+#image-input{
 }
 
 #i-video-container {
@@ -73,7 +94,7 @@ cursor:default;
 }
 
 #preview-container{
-
+	height:250px;
 }
 
 #overlay-container {
@@ -84,6 +105,8 @@ cursor:default;
     height: 100%;
     z-index: 1;
     overflow: hidden;
+}
+#webgl {
 }
 
 #webgl-container {

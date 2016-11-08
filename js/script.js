@@ -1,199 +1,266 @@
 //Prototype 2 JavaScript
 
 //GLOBALS
-var autoPlay = false, //video will autoplay when true
+var autoPlay = true, //video will autoplay when true
 	playing = false; //status of video player
 
 $(document).ready(function(){
 	
+	//Jquery element vars
+	var $nameInput = $('#name-input'),
+		$imageInput = $('#image-input'),
+		$preview = $('#preview-container'),
+		$createBtn = $('#btn-create'),
+		$imageName = $('#img-name'),
+		$dragZone = $('#dragzone'),
+		$dragDropContainer = $('#dragdrop-container'),
+		$inputContainer = $('#initial-user-input'),
+		$ivideoContainer = $('#i-video-container');
 
-	//element vars
-	var nameInput = $('#name-input'),
-		imageInput = $('#image-input'),
-		preview = $('#preview-container'),
-		createBtn = $('#btn-create'),
-		imageName = $('#img-name'),
-		inputContainer = $('#initial-user-input'),
-		ivideoContainer = $('#i-video-container');
+	//DRAG N DROP VARS
+	var img = document.createElement('img');
+	var files; //stores uploaded files
 
 	//interactive video elements
-	var viewport = $('#viewport')
-		video = $('#video')[0],
-		overlayContainer = $('#overlay-container'),
-		playButton = $('#btn-play'),
-		textField = $('#textfield'),
-		clearButton = $('#btn-clear'),
-		glContainer = $('#webgl-container');
+	var $viewport = $('#viewport')
+		$video = $('#video')[0],
+		$overlayContainer = $('#overlay-container'),
+		$playButton = $('#btn-play'),
+		$textField = $('#textfield'),
+		$clearButton = $('#btn-clear'),
+		$glContainer = $('#webgl-container');
 
 	//storing height and width of viewport
-	var	viewHeight = viewport.height(),
-		viewWidth = viewport.width();
+	var	viewHeight = $viewport.height(),
+		viewWidth = $viewport.width();
 	
 	//vars to store user submitted info
-	var userImage;
-	var userName = "";
+	var userImage,
+		userName = "";
 
-	//TIMING VARIABLES
-	var vt = video.currentTime,
-		date = new Date(), //tracks the start time of video play
-		now = new Date(), //tracks current time of video
-		deltaTime = 0,
-		dateTime = 0,
-		renderTime = 0,
-		renderLoops = 0,
-		vTimeElem = $('#v-time'),
-		dTimeElem = $('#d-time'),
-		rTimeElem = $('#r-time');
+	//Render Timing Videos
+	var vt = $video.currentTime,
+		$vTime = $('#v-time');
 
+	//2D Canvas to capture textures
+	var canvas2d = document.createElement('canvas'),
+		ctx2d = canvas2d.getContext('2d');
+		//set canvas2d size to power of 2
+	var	c_h = 256,
+		c_w = 512;
+		//set canvas properties
+		canvas2d.height = c_h;
+		canvas2d.width = c_w;
+		ctx2d.fillStyle = 'white';
+		ctx2d.font = '72px serif';
+		ctx2d.textAlign = 'center';
+		ctx2d.textBaseline = 'middle';
+//		$('body').append(canvas2d);
 
-	//WEBGL GLOBALS
-	var scene = new THREE.Scene();
-	var camera = new THREE.PerspectiveCamera(75, viewWidth/viewHeight, 0.1, 1000);
-	var renderer = new THREE.WebGLRenderer( { alpha: true } );
-
-	initGL();
-
+	//THREE.js vars
+	var scene = new THREE.Scene(),
+		camera = new THREE.PerspectiveCamera(75, viewWidth/viewHeight, 0.1, 1000),
+		//set renderer alpha true so transparent object don't block. and antialias off for texel mapping
+		renderer = new THREE.WebGLRenderer( { alpha: true, antialias: true} );
 	//create objects to add to canvas
-	var geometry = new THREE.PlaneGeometry( 5,5 );
-	var material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
-	var greenplane = new THREE.Mesh( geometry, material );
-		greenplane.position.y = 8;
-
-	geometry = new THREE.PlaneGeometry( 5,5 );
-	material = new THREE.MeshBasicMaterial( { color: 0xff0000 } );
-	var redplane = new THREE.Mesh( geometry, material );
-		redplane.position.y = 0;
-
-	geometry = new THREE.PlaneGeometry( 5,5 );
-	material = new THREE.MeshBasicMaterial( { color: 0x0000ff } );
-	var blueplane = new THREE.Mesh( geometry, material );
-		blueplane.position.y = -8;
-		
-	scene.add( greenplane, redplane, blueplane);
-
-	camera.position.z = 20; //move back camera to see plane
-
-	//array of plane Keyframes in seconds
-	var keyframes = [0,5,15]; 
-
+	var logoMesh,
+		textMesh;
+	//move back camera to see plane	
+	camera.position.z = 20; 	
 
 	//render  animation loop
 	function render() {
 
+		requestAnimationFrame( render );	
+		
+		getVideoTime();
+
+		animation();
+
+		renderer.render( scene, camera );	
+
 		if(!playing)
 			return;
-		
-		requestAnimationFrame( render );	
-
-		//calculate rendertime
-		renderLoops++;
-		
-		getDeltaTime();
-
-		getVideoTime();
-		
-		animatePlane();
-
-		renderer.render( scene, camera );
-
-
 	}
+
+	function animation () {
+
+		//logoMesh instructions 
+		if ( vt < 2) {
+			logoMesh.position.y = 22;
+		} else if ( 2 < vt && vt < 12) {
+			logoMesh.position.y = easeOutQuad(vt - 2, 20, -20, 5);
+		} else if (12 < vt) {
+			logoMesh.position.y = 22;
+		}
+
+		//textMesh instructions
+		if (vt < 11){
+			textMesh.material.opacity = 0;
+		} else if ( 12 < vt && vt < 13) {
+			textMesh.material.opacity = (vt - 12);
+		} else if ( 13 < vt && vt < 17) {
+			textMesh.material.opacity = 1;
+		} else if ( 17 < vt && vt < 18){
+			textMesh.material.opacity = (18 - vt);
+		} else if ( 18 < vt){
+			textMesh.material.opacity = 0;
+		}
+
+	};
+
+//to display timecode
+//	setInterval(function (){ $vTime.html(vt);},100);
 
 	function getVideoTime(){
 		//update video timecode
-		vt = video.currentTime;		
+		vt = $video.currentTime;		
 	};
-
-	function getDeltaTime(){
-		//get exact time elapsed in seconds
-		now = new Date();
-		deltaTime = (now.getTime() - date.getTime()) / 1000;		
-	};
-
-	function animatePlane(){
-
-		greenplane.position.x = 20 * Math.cos( vt * Math.PI / 5);
-
-		redplane.position.x = 20 * Math.cos( (dateTime + deltaTime) * Math.PI / 5);
-
-		blueplane.position.x = 20 * Math.cos( renderLoops * Math.PI / 300);
-
-	};
-
 
 	//get time when video starts
-	video.onplay = function() {
+	$video.onplay = function() {
 		//set playing to true
 		playing = true;		
-		//get start time
-		date = new Date();
-		//update render time based on video (to avoid drift)
-		dateTime = video.currentTime;
-
+		render();
+	};
+	$video.onpause = function (){
+		playing = false;
+	};
+	$video.onseeked = function(){
 		render();
 	};
 
-	video.onpause = function (){
-		playing = false;
-		//update render time based on video (to avoid drift)
-		dateTime = video.currentTime;
-	}
-
 
 	//define dropzone and handlers
-	var	dragDrop = $('#dragzone')[0];
+	var	dragDrop = $dragZone[0];
 		dragDrop.addEventListener('dragenter', dragenter, false);
 		dragDrop.addEventListener('dragover', dragover, false);
 		dragDrop.addEventListener('drop', drop, false);
 
 	//if user manually uploads image
-	imageInput.change(function(){
+	$imageInput.change(function(){
 		handleFiles(this.files[0]);
 	});
 
 	//if auto play, set playPause btn to Pause, else play
-	autoPlay ? playButton.html("Pause") : playButton.html("Play")
+	autoPlay ? $playButton.html("Pause") : $playButton.html("Play")
 
 	//when button is pressed, fire playPause
-	playButton.click( function(){
+	$playButton.click( function(){
 		playPause()
 	});
 
 	//when user hits 'Create Video', hide input, show video and play
-	createBtn.click( function(){
-		//get username
-		userName = nameInput.val();		
-		inputContainer.hide();
-		ivideoContainer.show();				
-		createVideo();
+	$createBtn.click( function(){
+		
+		init();
+
+		//create bmp for userName
+		userName = $nameInput.val();
+		//write user name onto middle of canvas
+		if(!userName){
+			userName = 'You';
+		}
+
+		ctx2d.fillText( 'Directed by', c_w/2, 32);
+		ctx2d.fillText( userName, c_w/2, c_h/2);
+
+		//create mesh using user's name
+		textMesh = planeMeshFromCanvas(20, 10);
+		//add to scene
+		scene.add(textMesh);
+		//render to force three to init the texture
+		renderer.render(scene, camera);
+
+		ctx2d.clearRect(0,0,c_w,c_h);
+
+		//if user uploaded an image
+		if(img.src) {
+			drawCenteredUserImage(img);
+		}
+
+		logoMesh = planeMeshFromCanvas(20,10);
+
+		logoMesh.position.y = 0;
+		
+		scene.add( logoMesh );
+		//render to force three to init the texture
+		renderer.render(scene, camera);
+
+		//initial mesh properties
+		logoMesh.position.y = 22;
+		textMesh.position.y = -2;
+		textMesh.position.z = 5;
+		textMesh.material.opacity = 0;
+
+		$inputContainer.hide();
+		$ivideoContainer.show();
+		
+		if(autoPlay){
+			$video.play();
+		}
 	});	
 
-	function initGL(){
-		renderer.setSize( viewWidth, viewHeight ); //setting the renderer to the viewport size
+	function drawCenteredUserImage(image){
+
+		var img_h = image.height,
+			img_w = image.width;
+
+		//if image width/height ratio is bigger than canvas's than the image need to be drawn at canvas width
+		if (img_w / img_h > c_w / c_h){
+			//have to find new height of image to maintain ratio
+			var drawHeight = c_w * img_h / img_w;
+			//draw new image and offset y by half difference of draw height and canvas height
+			ctx2d.drawImage( image , 0 , (c_h - drawHeight) / 2 , c_w , drawHeight);
+		} 
+		//is it needs to be drawn to canvas height
+		else if (img_w / img_h < c_w / c_h) {
+			//find the new width
+			var drawWidth = c_h * img_w / img_h;
+			//offest by half difference of drawheight and canvan height
+			ctx2d.drawImage( image , (c_w - drawWidth) / 2 , 0 , drawWidth , c_h);
+		} else {
+			//else they're the same ratio, just draw it directly on canvas
+			ctx2d.drawImage( image, 0, 0, c_w, c_h);
+		}			
+	};
+
+	//returns plane Mesh from with texture from canvas
+	function planeMeshFromCanvas(x,y) {
+
+		var texture = new THREE.Texture(canvas2d);
+		//texel mapping fix anisotropy, magFilter and minFIlter
+
+		texture.needsUpdate = true;
+		
+		var material = new THREE.MeshBasicMaterial({ map:texture });
+		material.transparent = true;
+
+		console.log(material);
+
+		var geometry = new THREE.PlaneGeometry( x, y);
+
+		return new THREE.Mesh( geometry, material);
+	};
+
+	function init(){
+		//setting the renderer to the viewport size
+		renderer.setSize( viewWidth, viewHeight ); 
 
 		renderer.domElement.classList.add('canvas');
 		renderer.domElement.id = 'webgl';
-		glContainer.append(renderer.domElement); //insert into glContainer		
+		$glContainer.append(renderer.domElement); //insert into $glContainer		
 	};
 	
 	//function to be called when Play/Pause button is pressed
 	function playPause(){
-	    if (video.paused) {
-	        video.play();
-	        playButton.html("Pause");
+	    if ($video.paused) {
+	        $video.play();
+	        $playButton.html("Pause");
 	    } else {
-	        video.pause();
-	        playButton.html("Play");
+	        $video.pause();
+	        $playButton.html("Play");
 	    }
-	};
-
-	function createVideo(){
-
-		//creates a span for text overlay, inserts sanitized userName and appends to overlayContainer
-		$('<span></span>').addClass("overlay-text").text(userName).appendTo(overlayContainer);
-
-		if(autoPlay)
-			video.play();
 	};
 
 	//handles when users drag object into dropzone
@@ -214,7 +281,7 @@ $(document).ready(function(){
 	    e.preventDefault();
 
 	    var dt = e.dataTransfer;
-	    var files = dt.files		
+	    files = dt.files;		
 
 		handleFiles(files[0]);
 	}
@@ -228,13 +295,12 @@ $(document).ready(function(){
 			return false;
 		}
 
-		var img = document.createElement('img');
-		img.classList.add('image-preview');
+		img.setAttribute('id','image-preview');
 
 		//insert img element to preview div
-		preview.html(img);
+		$dragZone.html(img);
 
-		imageName.html(file.name);
+		$imageName.html(file.name);
 
 		var reader = new FileReader();
 		
@@ -244,7 +310,8 @@ $(document).ready(function(){
 		//tells the reader what to do when onload is fired
 		reader.onload = (function(aImg) { 
 			return function (e) { 
-				aImg.src = e.target.result; 
+				aImg.src = e.target.result;
+				$dragZone.width($('#image-preview').width());
 			};
 		})(img);
 		
@@ -253,20 +320,11 @@ $(document).ready(function(){
 		
 		//adds alt tag
 		userImage.attr('alt',file.name);
-		
+
 		return true;
 	}
 });
 
-function initWebGL(canvas){
-	gl = null;
-	// Try to grab the standard context. If it fails, fallback to experimental.
-	gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
-	// If we don't have a GL context, give up now
-	if (!gl) {
-	   alert("Unable to initialize WebGL. Your browser may not support it.");
-	}
-  	return gl;
-}
+
 
 
