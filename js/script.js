@@ -1,4 +1,4 @@
-//Prototype 2 JavaScript
+//Prototype 3 JavaScript
 
 //GLOBALS
 var autoPlay = true, //video will autoplay when true
@@ -22,7 +22,7 @@ $(document).ready(function(){
 	var files; //stores uploaded files
 
 	//interactive video elements
-	var $viewport = $('#viewport')
+	var $viewport = $('#viewport'),
 		$video = $('#video')[0],
 		$overlayContainer = $('#overlay-container'),
 		$playButton = $('#btn-play'),
@@ -55,13 +55,12 @@ $(document).ready(function(){
 		ctx2d.font = '72px serif';
 		ctx2d.textAlign = 'center';
 		ctx2d.textBaseline = 'middle';
-//		$('body').append(canvas2d);
 
 	//THREE.js vars
 	var scene = new THREE.Scene(),
 		camera = new THREE.PerspectiveCamera(75, viewWidth/viewHeight, 0.1, 1000),
 		//set renderer alpha true so transparent object don't block. and antialias off for texel mapping
-		renderer = new THREE.WebGLRenderer( { alpha: true, antialias: true} );
+		renderer = new THREE.WebGLRenderer( { alpha: true, antialias: false} );
 	//create objects to add to canvas
 	var logoMesh,
 		textMesh;
@@ -116,7 +115,6 @@ $(document).ready(function(){
 		//update video timecode
 		vt = $video.currentTime;		
 	};
-
 	//get time when video starts
 	$video.onplay = function() {
 		//set playing to true
@@ -167,6 +165,8 @@ $(document).ready(function(){
 
 		//create mesh using user's name
 		textMesh = planeMeshFromCanvas(20, 10);
+
+		console.log(textMesh); 
 		//add to scene
 		scene.add(textMesh);
 		//render to force three to init the texture
@@ -229,18 +229,26 @@ $(document).ready(function(){
 	function planeMeshFromCanvas(x,y) {
 
 		var texture = new THREE.Texture(canvas2d);
-		//texel mapping fix anisotropy, magFilter and minFIlter
-
 		texture.needsUpdate = true;
-		
+		//texel mapping fix: anisotropy, magFilter and minFIlter
+		texture.anisotropy = 0;
+		texture.magFilter = THREE.NearestFilter;
+		texture.minFilter = THREE.NearestFilter;
+
 		var material = new THREE.MeshBasicMaterial({ map:texture });
 		material.transparent = true;
+		material.needsUpdate = true;
+		
+/** Blending Doesn't fix
+		texture.premultiplyAlpha = true;
+		material.premultipliedAlpha = true;
+		material.blending = THREE.CustomBlending;
+		material.blendSrc = THREE.OneFactor;
+		material.blendDst = THREE.OneMinusSrcAlphaFactor;
+		material.blendEquation = THREE.AddEquation;  
+**/
 
-		console.log(material);
-
-		var geometry = new THREE.PlaneGeometry( x, y);
-
-		return new THREE.Mesh( geometry, material);
+		return new THREE.Mesh( new THREE.PlaneGeometry( x, y), material);
 	};
 
 	function init(){
